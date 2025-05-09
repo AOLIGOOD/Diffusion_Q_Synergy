@@ -18,8 +18,13 @@ from cleandiffuser.nn_condition import IdentityCondition
 from cleandiffuser.nn_diffusion import DDAQMlp
 from cleandiffuser.utils import FreezeModules, DDAQCritic
 
-from pipelines.utils import set_seed
 import torch.nn.functional as F
+
+
+def set_seed(seed: int):
+    torch.manual_seed(seed)
+    np.random.seed(seed)
+    random.seed(seed)
 
 
 @hydra.main(config_path='/configs/critic', config_name="mujoco", version_base=None)
