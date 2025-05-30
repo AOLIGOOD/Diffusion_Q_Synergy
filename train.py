@@ -99,7 +99,7 @@ def train(args, ):
         noisy_act = alpha * act + sigma * eps
 
         pred_act, _, = agent.sample(
-            noisy_act, solver=args.solver, fix_mask=torch.ones(noisy_act),
+            noisy_act, solver=args.solver, 
             n_samples=args.batch_size, sample_steps=args.diffusion_steps, use_ema=False,
             temperature=1.0, condition_cfg=obs, w_cfg=1.0, requires_grad=True)
 
