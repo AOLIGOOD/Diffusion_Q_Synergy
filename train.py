@@ -93,15 +93,20 @@ def train(args, ):
 
         # Policy Training
 
-        new_act, _, = agent.sample(
-            prior, solver=args.solver,
-            n_samples=args.batch_size, sample_steps=args.sampling_steps, use_ema=False,
+        t = torch.randint(4, (args.batch_size,), device=args.device)
+        eps = torch.randn_like(act)
+        alpha, sigma = at_least_ndim(agent.alpha[t], act.dim()), at_least_ndim(agent.sigma[t], act.dim())
+        noisy_act = alpha * act + sigma * eps
+
+        pred_act, _, = agent.sample(
+            noisy_act, solver=args.solver, fix_mask=torch.ones(noisy_act),
+            n_samples=args.batch_size, sample_steps=args.diffusion_steps, use_ema=False,
             temperature=1.0, condition_cfg=obs, w_cfg=1.0, requires_grad=True)
 
         with FreezeModules([critic, ]):
-            q_new_action = torch.min(*critic(obs, new_act))
+            q_new_action = torch.min(*critic(obs, pred_act))
             q_data_action = torch.min(*critic(obs, act))
-        adv_loss = (-q_new_action.mean() / q_data_action.abs().mean().detach())
+            adv_loss = (-q_new_action.mean() / q_data_action.abs().mean().detach())
 
         adv_loss = torch.clamp(adv_loss, min=-1.1, max=1.1)
 
