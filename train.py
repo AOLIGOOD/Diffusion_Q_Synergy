@@ -98,8 +98,8 @@ def train(args, ):
         alpha, sigma = at_least_ndim(agent.alpha[t], act.dim()), at_least_ndim(agent.sigma[t], act.dim())
         noisy_act = alpha * act + sigma * eps
 
-        pred_act, _, = agent.sample(
-            noisy_act, solver=args.solver, 
+        pred_act, _, _ = agent.ddim_step_with_logprob(
+            noisy_act, solver=args.solver,
             n_samples=args.batch_size, sample_steps=args.diffusion_steps, use_ema=False,
             temperature=1.0, condition_cfg=obs, w_cfg=1.0, requires_grad=True)
 
